@@ -4,8 +4,16 @@
 #envirnoment 
 .env
 
-#node_modules
+#db
+*.sqlite
+*.sqlite3
+*.db
 
+migrations
+
+#pycache
+__pycache__/
+*.py[cod]
 # Logs
 logs
 *.log
@@ -30,3 +38,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
