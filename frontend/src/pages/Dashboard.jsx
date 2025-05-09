@@ -8,6 +8,7 @@ const Dashboard = () => {
   const [logs, setLogs] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState("All");
   const [recentlyResponded, setRecentlyResponded] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchLogs = async () => {
     try {
@@ -24,25 +25,42 @@ const Dashboard = () => {
 
   const handleResponse = (id) => {
     setRecentlyResponded((prev) => [...prev, id]);
-
     setTimeout(() => {
       setRecentlyResponded((prev) => prev.filter((logId) => logId !== id));
     }, 3000);
-
-    fetchLogs(); // Refresh the logs after response
+    fetchLogs();
   };
 
-  const filteredLogs = selectedLevel === "All"
-    ? logs
-    : logs.filter(log => log.threat_level === selectedLevel);
+  // Filtering logic
+  const filteredLogs = logs.filter((log) => {
+    const matchesLevel =
+      selectedLevel === "All" || log.threat_level === selectedLevel;
+
+    const matchesSearch =
+      log.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.source_ip.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return matchesLevel && matchesSearch;
+  });
 
   return (
     <div className="container py-4">
       <h2 className="mb-4 text-center">Cyber Threat Logs</h2>
 
+      {/* Search bar */}
+      <div className="mb-3 d-flex justify-content-center">
+        <input
+          type="text"
+          placeholder="Search by IP or content..."
+          className="form-control w-50"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       {/* Filter buttons */}
       <div className="mb-4 d-flex flex-wrap gap-2 justify-content-center">
-        {["All", "Low", "Medium", "High", "Critical"].map(level => (
+        {["All", "Low", "Medium", "High", "Critical"].map((level) => (
           <button
             key={level}
             className={`btn btn-sm ${
@@ -57,7 +75,7 @@ const Dashboard = () => {
 
       {/* Log cards */}
       <div className="row">
-        {filteredLogs.map(log => (
+        {filteredLogs.map((log) => (
           <div className="col-md-6 col-lg-4 mb-3" key={log.id}>
             <LogCard
               log={log}
